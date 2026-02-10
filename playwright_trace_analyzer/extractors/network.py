@@ -4,7 +4,9 @@ import zipfile
 from playwright_trace_analyzer.models import NetworkRequest
 
 
-def extract_network_requests(zf: zipfile.ZipFile, _events: list[dict]) -> list[NetworkRequest]:
+def extract_network_requests(
+    zf: zipfile.ZipFile, _events: list[dict]
+) -> list[NetworkRequest]:
     requests = []
 
     for name in zf.namelist():

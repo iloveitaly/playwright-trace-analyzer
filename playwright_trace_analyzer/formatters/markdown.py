@@ -1,4 +1,10 @@
-from playwright_trace_analyzer.models import TraceData, ConsoleMessage, NetworkRequest, Action, TraceMetadata
+from playwright_trace_analyzer.models import (
+    TraceData,
+    ConsoleMessage,
+    NetworkRequest,
+    Action,
+    TraceMetadata,
+)
 
 
 def format_trace_data(data: TraceData, last_n_actions: int = 20) -> str:
@@ -10,15 +16,13 @@ def format_trace_data(data: TraceData, last_n_actions: int = 20) -> str:
         sections.append(_format_errors_section(data.errors))
 
     console_errors_warnings = [
-        m for m in data.console_messages
-        if m.message_type in ["error", "warning"]
+        m for m in data.console_messages if m.message_type in ["error", "warning"]
     ]
     if console_errors_warnings:
         sections.append(_format_console_errors_section(console_errors_warnings))
 
     failed_requests = [
-        r for r in data.network_requests
-        if r.status >= 400 or r.failure_text
+        r for r in data.network_requests if r.status >= 400 or r.failure_text
     ]
     if failed_requests:
         sections.append(_format_failed_requests_section(failed_requests))
@@ -113,7 +117,9 @@ def _format_metadata_section(metadata: TraceMetadata) -> str:
     if metadata.base_url:
         lines.append(f"**Base URL:** {metadata.base_url}")
     if metadata.viewport:
-        lines.append(f"**Viewport:** {metadata.viewport.width}x{metadata.viewport.height}")
+        lines.append(
+            f"**Viewport:** {metadata.viewport.width}x{metadata.viewport.height}"
+        )
     lines.append(f"**Duration:** {metadata.duration_ms:.2f}ms")
 
     return "\n".join(lines)
@@ -156,7 +162,9 @@ def _format_failed_requests_section(requests: list[NetworkRequest]) -> str:
 
 
 def _format_action_timeline_section(actions: list[Action], last_n: int) -> str:
-    display_actions = actions[-last_n:] if last_n > 0 and len(actions) > last_n else actions
+    display_actions = (
+        actions[-last_n:] if last_n > 0 and len(actions) > last_n else actions
+    )
 
     lines = ["# Action Timeline"]
     if last_n > 0 and len(actions) > last_n:

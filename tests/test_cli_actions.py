@@ -24,7 +24,9 @@ def test_actions_json(cli_runner, synthetic_trace_zip):
 
 
 def test_actions_markdown(cli_runner, synthetic_trace_zip):
-    result = cli_runner.invoke(actions, [str(synthetic_trace_zip), "--format", "markdown"])
+    result = cli_runner.invoke(
+        actions, [str(synthetic_trace_zip), "--format", "markdown"]
+    )
 
     assert result.exit_code == 0
     assert "Page" in result.output
@@ -35,7 +37,9 @@ def test_actions_markdown(cli_runner, synthetic_trace_zip):
 
 
 def test_actions_page_filter(cli_runner, synthetic_trace_zip):
-    result = cli_runner.invoke(actions, [str(synthetic_trace_zip), "--format", "json", "--page", "page@2"])
+    result = cli_runner.invoke(
+        actions, [str(synthetic_trace_zip), "--format", "json", "--page", "page@2"]
+    )
 
     assert result.exit_code == 0
 
@@ -45,7 +49,9 @@ def test_actions_page_filter(cli_runner, synthetic_trace_zip):
 
 
 def test_actions_errors_only(cli_runner, synthetic_trace_zip):
-    result = cli_runner.invoke(actions, [str(synthetic_trace_zip), "--format", "json", "--errors-only"])
+    result = cli_runner.invoke(
+        actions, [str(synthetic_trace_zip), "--format", "json", "--errors-only"]
+    )
 
     assert result.exit_code == 0
 

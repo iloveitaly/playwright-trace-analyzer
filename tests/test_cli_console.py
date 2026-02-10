@@ -22,7 +22,9 @@ def test_console_json(cli_runner, synthetic_trace_zip):
 
 
 def test_console_markdown(cli_runner, synthetic_trace_zip):
-    result = cli_runner.invoke(console, [str(synthetic_trace_zip), "--format", "markdown"])
+    result = cli_runner.invoke(
+        console, [str(synthetic_trace_zip), "--format", "markdown"]
+    )
 
     assert result.exit_code == 0
     assert "[ERROR]" in result.output or "error" in result.output.lower()
@@ -31,7 +33,9 @@ def test_console_markdown(cli_runner, synthetic_trace_zip):
 
 
 def test_console_page_filter(cli_runner, synthetic_trace_zip):
-    result = cli_runner.invoke(console, [str(synthetic_trace_zip), "--format", "json", "--page", "page@2"])
+    result = cli_runner.invoke(
+        console, [str(synthetic_trace_zip), "--format", "json", "--page", "page@2"]
+    )
 
     assert result.exit_code == 0
 
@@ -42,7 +46,9 @@ def test_console_page_filter(cli_runner, synthetic_trace_zip):
 
 
 def test_console_level_filter(cli_runner, synthetic_trace_zip):
-    result = cli_runner.invoke(console, [str(synthetic_trace_zip), "--format", "json", "--level", "error"])
+    result = cli_runner.invoke(
+        console, [str(synthetic_trace_zip), "--format", "json", "--level", "error"]
+    )
 
     assert result.exit_code == 0
 

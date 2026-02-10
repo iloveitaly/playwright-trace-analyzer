@@ -2,17 +2,18 @@ from playwright_trace_analyzer.models import TraceMetadata, Size
 
 
 def extract_metadata(events: list[dict]) -> TraceMetadata:
-    context_event = next(
-        (e for e in events if e.get("type") == "context-options"),
-        {}
-    )
+    context_event = next((e for e in events if e.get("type") == "context-options"), {})
 
     options = context_event.get("contextOptions", {})
     browser = context_event.get("browser", {})
     platform_data = context_event.get("platform", {})
 
-    start_time = min((e.get("timestamp", 0) for e in events if e.get("timestamp")), default=0)
-    end_time = max((e.get("timestamp", 0) for e in events if e.get("timestamp")), default=0)
+    start_time = min(
+        (e.get("timestamp", 0) for e in events if e.get("timestamp")), default=0
+    )
+    end_time = max(
+        (e.get("timestamp", 0) for e in events if e.get("timestamp")), default=0
+    )
     duration_ms = end_time - start_time
 
     viewport_data = options.get("viewport")

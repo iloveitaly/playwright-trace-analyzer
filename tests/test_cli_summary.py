@@ -17,7 +17,9 @@ def test_summary_json(cli_runner, synthetic_trace_zip):
 
 
 def test_summary_markdown(cli_runner, synthetic_trace_zip):
-    result = cli_runner.invoke(summary, [str(synthetic_trace_zip), "--format", "markdown"])
+    result = cli_runner.invoke(
+        summary, [str(synthetic_trace_zip), "--format", "markdown"]
+    )
 
     assert result.exit_code == 0
     assert "# Metadata" in result.output
@@ -26,7 +28,9 @@ def test_summary_markdown(cli_runner, synthetic_trace_zip):
 
 
 def test_summary_page_filter(cli_runner, synthetic_trace_zip):
-    result = cli_runner.invoke(summary, [str(synthetic_trace_zip), "--format", "json", "--page", "page@1"])
+    result = cli_runner.invoke(
+        summary, [str(synthetic_trace_zip), "--format", "json", "--page", "page@1"]
+    )
 
     assert result.exit_code == 0
 
@@ -39,7 +43,9 @@ def test_summary_page_filter(cli_runner, synthetic_trace_zip):
 
 
 def test_summary_last_n(cli_runner, synthetic_trace_zip):
-    result = cli_runner.invoke(summary, [str(synthetic_trace_zip), "--format", "json", "--last", "1"])
+    result = cli_runner.invoke(
+        summary, [str(synthetic_trace_zip), "--format", "json", "--last", "1"]
+    )
 
     assert result.exit_code == 0
 
@@ -48,7 +54,9 @@ def test_summary_last_n(cli_runner, synthetic_trace_zip):
 
 
 def test_summary_last_zero(cli_runner, synthetic_trace_zip):
-    result = cli_runner.invoke(summary, [str(synthetic_trace_zip), "--format", "json", "--last", "0"])
+    result = cli_runner.invoke(
+        summary, [str(synthetic_trace_zip), "--format", "json", "--last", "0"]
+    )
 
     assert result.exit_code == 0
 

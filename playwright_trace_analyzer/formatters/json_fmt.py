@@ -1,6 +1,12 @@
 import json
 
-from playwright_trace_analyzer.models import TraceData, ConsoleMessage, NetworkRequest, Action, TraceMetadata
+from playwright_trace_analyzer.models import (
+    TraceData,
+    ConsoleMessage,
+    NetworkRequest,
+    Action,
+    TraceMetadata,
+)
 
 
 def format_trace_data(data: TraceData, last_n_actions: int = 20) -> str:
@@ -8,11 +14,13 @@ def format_trace_data(data: TraceData, last_n_actions: int = 20) -> str:
         "metadata": data.metadata.model_dump(),
         "errors": [e.model_dump() for e in data.errors],
         "console_errors_warnings": [
-            m.model_dump() for m in data.console_messages
+            m.model_dump()
+            for m in data.console_messages
             if m.message_type in ["error", "warning"]
         ],
         "failed_network_requests": [
-            r.model_dump() for r in data.network_requests
+            r.model_dump()
+            for r in data.network_requests
             if r.status >= 400 or r.failure_text
         ],
         "action_timeline": [

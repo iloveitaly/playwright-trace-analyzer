@@ -20,7 +20,9 @@ def test_network_json(cli_runner, synthetic_trace_zip):
 
 
 def test_network_markdown(cli_runner, synthetic_trace_zip):
-    result = cli_runner.invoke(network, [str(synthetic_trace_zip), "--format", "markdown"])
+    result = cli_runner.invoke(
+        network, [str(synthetic_trace_zip), "--format", "markdown"]
+    )
 
     assert result.exit_code == 0
     assert "GET" in result.output or "POST" in result.output
@@ -29,7 +31,9 @@ def test_network_markdown(cli_runner, synthetic_trace_zip):
 
 
 def test_network_failed_only(cli_runner, synthetic_trace_zip):
-    result = cli_runner.invoke(network, [str(synthetic_trace_zip), "--format", "json", "--failed-only"])
+    result = cli_runner.invoke(
+        network, [str(synthetic_trace_zip), "--format", "json", "--failed-only"]
+    )
 
     assert result.exit_code == 0
 
@@ -41,7 +45,10 @@ def test_network_failed_only(cli_runner, synthetic_trace_zip):
 
 
 def test_network_ignore_pattern(cli_runner, synthetic_trace_zip):
-    result = cli_runner.invoke(network, [str(synthetic_trace_zip), "--format", "json", "--ignore-pattern", "missing"])
+    result = cli_runner.invoke(
+        network,
+        [str(synthetic_trace_zip), "--format", "json", "--ignore-pattern", "missing"],
+    )
 
     assert result.exit_code == 0
 

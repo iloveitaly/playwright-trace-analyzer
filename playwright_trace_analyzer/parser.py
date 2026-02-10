@@ -12,8 +12,12 @@ def parse_trace_file(trace_path: Path) -> TraceData:
 
         from playwright_trace_analyzer.extractors.metadata import extract_metadata
         from playwright_trace_analyzer.extractors.actions import extract_actions
-        from playwright_trace_analyzer.extractors.console import extract_console_messages
-        from playwright_trace_analyzer.extractors.network import extract_network_requests
+        from playwright_trace_analyzer.extractors.console import (
+            extract_console_messages,
+        )
+        from playwright_trace_analyzer.extractors.network import (
+            extract_network_requests,
+        )
         from playwright_trace_analyzer.extractors.errors import extract_errors
         from playwright_trace_analyzer.extractors.screenshots import extract_screenshots
 

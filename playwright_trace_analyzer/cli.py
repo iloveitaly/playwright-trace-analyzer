@@ -18,9 +18,21 @@ def cli(ctx):
 
 @click.command()
 @click.argument("trace_file", type=click.Path(exists=True, path_type=Path))
-@click.option("--format", "-f", type=click.Choice(["json", "markdown"]), default="json", help="Output format")
+@click.option(
+    "--format",
+    "-f",
+    type=click.Choice(["json", "markdown"]),
+    default="json",
+    help="Output format",
+)
 @click.option("--page", "-p", help="Filter by pageId")
-@click.option("--last", "-n", type=int, default=20, help="Number of actions in summary (0 for all)")
+@click.option(
+    "--last",
+    "-n",
+    type=int,
+    default=20,
+    help="Number of actions in summary (0 for all)",
+)
 def summary(trace_file: Path, format: str, page: str | None, last: int):
     data = parse_trace_file(trace_file)
 
@@ -39,7 +51,13 @@ def summary(trace_file: Path, format: str, page: str | None, last: int):
 
 @click.command()
 @click.argument("trace_file", type=click.Path(exists=True, path_type=Path))
-@click.option("--format", "-f", type=click.Choice(["json", "markdown"]), default="json", help="Output format")
+@click.option(
+    "--format",
+    "-f",
+    type=click.Choice(["json", "markdown"]),
+    default="json",
+    help="Output format",
+)
 @click.option("--page", "-p", help="Filter by pageId")
 @click.option("--errors-only", is_flag=True, help="Only show failed actions")
 def actions(trace_file: Path, format: str, page: str | None, errors_only: bool):
@@ -63,7 +81,13 @@ def actions(trace_file: Path, format: str, page: str | None, errors_only: bool):
 
 @click.command()
 @click.argument("trace_file", type=click.Path(exists=True, path_type=Path))
-@click.option("--format", "-f", type=click.Choice(["json", "markdown"]), default="json", help="Output format")
+@click.option(
+    "--format",
+    "-f",
+    type=click.Choice(["json", "markdown"]),
+    default="json",
+    help="Output format",
+)
 @click.option("--page", "-p", help="Filter by pageId")
 @click.option("--level", help="Filter by message type (error, warning, log, etc.)")
 def console(trace_file: Path, format: str, page: str | None, level: str | None):
@@ -87,10 +111,18 @@ def console(trace_file: Path, format: str, page: str | None, level: str | None):
 
 @click.command()
 @click.argument("trace_file", type=click.Path(exists=True, path_type=Path))
-@click.option("--format", "-f", type=click.Choice(["json", "markdown"]), default="json", help="Output format")
+@click.option(
+    "--format",
+    "-f",
+    type=click.Choice(["json", "markdown"]),
+    default="json",
+    help="Output format",
+)
 @click.option("--failed-only", is_flag=True, help="Only show failed requests")
 @click.option("--ignore-pattern", help="Exclude URLs matching regex pattern")
-def network(trace_file: Path, format: str, failed_only: bool, ignore_pattern: str | None):
+def network(
+    trace_file: Path, format: str, failed_only: bool, ignore_pattern: str | None
+):
     data = parse_trace_file(trace_file)
 
     requests = data.network_requests
@@ -112,8 +144,16 @@ def network(trace_file: Path, format: str, failed_only: bool, ignore_pattern: st
 
 @click.command()
 @click.argument("trace_file", type=click.Path(exists=True, path_type=Path))
-@click.option("--output-dir", "-o", type=click.Path(path_type=Path), default=Path("./trace-screenshots/"), help="Output directory for screenshots")
-@click.option("--action-only", is_flag=True, help="Only extract action-related screenshots")
+@click.option(
+    "--output-dir",
+    "-o",
+    type=click.Path(path_type=Path),
+    default=Path("./trace-screenshots/"),
+    help="Output directory for screenshots",
+)
+@click.option(
+    "--action-only", is_flag=True, help="Only extract action-related screenshots"
+)
 def screenshots(trace_file: Path, output_dir: Path, action_only: bool):
     data = parse_trace_file(trace_file)
 
@@ -141,7 +181,13 @@ def screenshots(trace_file: Path, output_dir: Path, action_only: bool):
 
 @click.command()
 @click.argument("trace_file", type=click.Path(exists=True, path_type=Path))
-@click.option("--format", "-f", type=click.Choice(["json", "markdown"]), default="json", help="Output format")
+@click.option(
+    "--format",
+    "-f",
+    type=click.Choice(["json", "markdown"]),
+    default="json",
+    help="Output format",
+)
 def metadata(trace_file: Path, format: str):
     data = parse_trace_file(trace_file)
 

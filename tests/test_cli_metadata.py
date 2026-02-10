@@ -22,11 +22,15 @@ def test_metadata_json(cli_runner, synthetic_trace_zip):
 
 
 def test_metadata_markdown(cli_runner, synthetic_trace_zip):
-    result = cli_runner.invoke(metadata, [str(synthetic_trace_zip), "--format", "markdown"])
+    result = cli_runner.invoke(
+        metadata, [str(synthetic_trace_zip), "--format", "markdown"]
+    )
 
     assert result.exit_code == 0
     assert "chromium" in result.output
     assert "Linux" in result.output
-    assert "1280x720" in result.output or ("1280" in result.output and "720" in result.output)
+    assert "1280x720" in result.output or (
+        "1280" in result.output and "720" in result.output
+    )
     assert "chrome" in result.output
     assert "my test title" in result.output

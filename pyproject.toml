@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "CLI tool for analyzing Playwright trace files without the browser-based viewer"
 keywords = ["playwright", "testing", "debugging", "trace-analysis"]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "click>=8.3.1",
     "funcy>=2.0",

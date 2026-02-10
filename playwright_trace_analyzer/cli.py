@@ -1,0 +1,165 @@
+import re
+import zipfile
+from pathlib import Path
+
+import click
+
+from playwright_trace_analyzer.parser import parse_trace_file
+from playwright_trace_analyzer.formatters import json_fmt, markdown
+
+
+@click.group(invoke_without_command=True)
+@click.version_option(package_name="playwright-trace-analyzer")
+@click.pass_context
+def cli(ctx):
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
+
+
+@click.command()
+@click.argument("trace_file", type=click.Path(exists=True, path_type=Path))
+@click.option("--format", "-f", type=click.Choice(["json", "markdown"]), default="json", help="Output format")
+@click.option("--page", "-p", help="Filter by pageId")
+@click.option("--last", "-n", type=int, default=20, help="Number of actions in summary (0 for all)")
+def summary(trace_file: Path, format: str, page: str | None, last: int):
+    data = parse_trace_file(trace_file)
+
+    if page:
+        data.actions = [a for a in data.actions if a.page_id == page]
+        data.console_messages = [m for m in data.console_messages if m.page_id == page]
+        data.errors = [e for e in data.errors if e.page_id == page]
+
+    if format == "json":
+        output = json_fmt.format_trace_data(data, last)
+    else:
+        output = markdown.format_trace_data(data, last)
+
+    click.echo(output)
+
+
+@click.command()
+@click.argument("trace_file", type=click.Path(exists=True, path_type=Path))
+@click.option("--format", "-f", type=click.Choice(["json", "markdown"]), default="json", help="Output format")
+@click.option("--page", "-p", help="Filter by pageId")
+@click.option("--errors-only", is_flag=True, help="Only show failed actions")
+def actions(trace_file: Path, format: str, page: str | None, errors_only: bool):
+    data = parse_trace_file(trace_file)
+
+    filtered_actions = data.actions
+
+    if page:
+        filtered_actions = [a for a in filtered_actions if a.page_id == page]
+
+    if errors_only:
+        filtered_actions = [a for a in filtered_actions if a.error]
+
+    if format == "json":
+        output = json_fmt.format_actions(filtered_actions)
+    else:
+        output = markdown.format_actions(filtered_actions)
+
+    click.echo(output)
+
+
+@click.command()
+@click.argument("trace_file", type=click.Path(exists=True, path_type=Path))
+@click.option("--format", "-f", type=click.Choice(["json", "markdown"]), default="json", help="Output format")
+@click.option("--page", "-p", help="Filter by pageId")
+@click.option("--level", help="Filter by message type (error, warning, log, etc.)")
+def console(trace_file: Path, format: str, page: str | None, level: str | None):
+    data = parse_trace_file(trace_file)
+
+    messages = data.console_messages
+
+    if page:
+        messages = [m for m in messages if m.page_id == page]
+
+    if level:
+        messages = [m for m in messages if m.message_type == level]
+
+    if format == "json":
+        output = json_fmt.format_console(messages)
+    else:
+        output = markdown.format_console(messages)
+
+    click.echo(output)
+
+
+@click.command()
+@click.argument("trace_file", type=click.Path(exists=True, path_type=Path))
+@click.option("--format", "-f", type=click.Choice(["json", "markdown"]), default="json", help="Output format")
+@click.option("--failed-only", is_flag=True, help="Only show failed requests")
+@click.option("--ignore-pattern", help="Exclude URLs matching regex pattern")
+def network(trace_file: Path, format: str, failed_only: bool, ignore_pattern: str | None):
+    data = parse_trace_file(trace_file)
+
+    requests = data.network_requests
+
+    if failed_only:
+        requests = [r for r in requests if r.status >= 400 or r.failure_text]
+
+    if ignore_pattern:
+        pattern = re.compile(ignore_pattern)
+        requests = [r for r in requests if not pattern.search(r.url)]
+
+    if format == "json":
+        output = json_fmt.format_network(requests)
+    else:
+        output = markdown.format_network(requests)
+
+    click.echo(output)
+
+
+@click.command()
+@click.argument("trace_file", type=click.Path(exists=True, path_type=Path))
+@click.option("--output-dir", "-o", type=click.Path(path_type=Path), default=Path("./trace-screenshots/"), help="Output directory for screenshots")
+@click.option("--action-only", is_flag=True, help="Only extract action-related screenshots")
+def screenshots(trace_file: Path, output_dir: Path, action_only: bool):
+    data = parse_trace_file(trace_file)
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    with zipfile.ZipFile(trace_file) as zf:
+        screenshot_count = 0
+
+        for frame in data.screenshots:
+            if action_only:
+                continue
+
+            resource_path = f"resources/{frame.sha1}"
+
+            if resource_path in zf.namelist():
+                output_filename = frame.sha1.replace("/", "_")
+                output_path = output_dir / output_filename
+
+                with zf.open(resource_path) as src:
+                    output_path.write_bytes(src.read())
+                screenshot_count += 1
+
+    click.echo(f"Extracted {screenshot_count} screenshots to {output_dir}")
+
+
+@click.command()
+@click.argument("trace_file", type=click.Path(exists=True, path_type=Path))
+@click.option("--format", "-f", type=click.Choice(["json", "markdown"]), default="json", help="Output format")
+def metadata(trace_file: Path, format: str):
+    data = parse_trace_file(trace_file)
+
+    if format == "json":
+        output = json_fmt.format_metadata(data.metadata)
+    else:
+        output = markdown.format_metadata(data.metadata)
+
+    click.echo(output)
+
+
+cli.add_command(summary)
+cli.add_command(actions)
+cli.add_command(console)
+cli.add_command(network)
+cli.add_command(screenshots)
+cli.add_command(metadata)
+
+
+def main():
+    cli()

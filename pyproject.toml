@@ -1,6 +1,6 @@
 [project]
 name = "playwright-trace-analyzer"
-version = "0.1.0"
+version = "0.2.0"
 description = "CLI tool for analyzing Playwright trace files without the browser-based viewer"
 keywords = ["playwright", "testing", "debugging", "trace-analysis"]
 readme = "README.md"

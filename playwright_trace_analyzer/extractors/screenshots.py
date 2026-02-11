@@ -1,3 +1,9 @@
+import io
+import zipfile
+
+from PIL import Image
+from pixelmatch.contrib.PIL import pixelmatch
+
 from playwright_trace_analyzer.models import ScreencastFrame, Action
 
 
@@ -48,3 +54,55 @@ def filter_action_frames(
 def build_screenshot_filename(frame: ScreencastFrame, trace_start_time: float) -> str:
     relative_ms = int(frame.timestamp - trace_start_time)
     return f"{relative_ms}ms.jpeg"
+
+
+def _load_image(zf: zipfile.ZipFile, sha1: str) -> Image.Image:
+    resource_path = f"resources/{sha1}"
+    with zf.open(resource_path) as f:
+        img = Image.open(io.BytesIO(f.read()))
+        return img.convert("RGBA")
+
+
+def _images_are_similar(
+    img_a: Image.Image, img_b: Image.Image, threshold: float
+) -> bool:
+    if img_a.size != img_b.size:
+        return False
+
+    width, height = img_a.size
+    total_pixels = width * height
+    diff_count = pixelmatch(img_a, img_b)
+    diff_fraction = diff_count / total_pixels
+
+    return diff_fraction <= threshold
+
+
+def deduplicate_frames(
+    frames: list[ScreencastFrame], zf: zipfile.ZipFile, threshold: float = 0.01
+) -> list[ScreencastFrame]:
+    if not frames:
+        return frames
+
+    resource_names = set(zf.namelist())
+    result = []
+    last_kept_image = None
+
+    for frame in frames:
+        resource_path = f"resources/{frame.sha1}"
+        if resource_path not in resource_names:
+            continue
+
+        try:
+            current_image = _load_image(zf, frame.sha1)
+        except Exception:
+            result.append(frame)
+            continue
+
+        if last_kept_image is None:
+            result.append(frame)
+            last_kept_image = current_image
+        elif not _images_are_similar(last_kept_image, current_image, threshold):
+            result.append(frame)
+            last_kept_image = current_image
+
+    return result

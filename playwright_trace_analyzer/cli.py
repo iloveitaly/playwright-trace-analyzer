@@ -174,13 +174,26 @@ def network(
     show_default=True,
     help="Maximum number of screenshots to extract (0 for all)",
 )
+@click.option(
+    "--dedupe-threshold",
+    type=float,
+    default=0.01,
+    show_default=True,
+    help="Fraction of pixels that must differ to keep a frame (0 to disable deduplication)",
+)
 def screenshots(
-    trace_file: Path, output_dir: Path, page: str | None, action_only: bool, limit: int
+    trace_file: Path,
+    output_dir: Path,
+    page: str | None,
+    action_only: bool,
+    limit: int,
+    dedupe_threshold: float,
 ):
     """Extract screenshots embedded in the trace to a directory."""
     from playwright_trace_analyzer.extractors.screenshots import (
         filter_action_frames,
         build_screenshot_filename,
+        deduplicate_frames,
     )
 
     data = parse_trace_file(trace_file)
@@ -192,12 +205,15 @@ def screenshots(
     if action_only:
         frames = filter_action_frames(frames, data.actions)
 
-    if limit > 0:
-        frames = frames[-limit:]
-
     output_dir.mkdir(parents=True, exist_ok=True)
 
     with zipfile.ZipFile(trace_file) as zf:
+        if 0 < dedupe_threshold < 1.0:
+            frames = deduplicate_frames(frames, zf, dedupe_threshold)
+
+        if limit > 0:
+            frames = frames[-limit:]
+
         resource_names = set(zf.namelist())
         screenshot_count = 0
 

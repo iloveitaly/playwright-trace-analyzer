@@ -103,3 +103,85 @@ def test_screenshots_filenames(cli_runner, synthetic_trace_zip, tmp_path):
 
     files = sorted([f.name for f in output_dir.iterdir()])
     assert files == ["2000ms.jpeg", "4000ms.jpeg", "5000ms.jpeg"]
+
+
+def test_screenshots_dedupe_default(
+    cli_runner, synthetic_trace_zip_with_images, tmp_path
+):
+    output_dir = tmp_path / "screenshots_dedupe_default"
+    result = cli_runner.invoke(
+        screenshots,
+        [str(synthetic_trace_zip_with_images), "--output-dir", str(output_dir)],
+    )
+
+    assert result.exit_code == 0
+    assert "Extracted 2 screenshots" in result.output
+
+    files = list(output_dir.iterdir())
+    assert len(files) == 2
+
+
+def test_screenshots_dedupe_disabled(
+    cli_runner, synthetic_trace_zip_with_images, tmp_path
+):
+    output_dir = tmp_path / "screenshots_dedupe_disabled"
+    result = cli_runner.invoke(
+        screenshots,
+        [
+            str(synthetic_trace_zip_with_images),
+            "--output-dir",
+            str(output_dir),
+            "--dedupe-threshold",
+            "0",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Extracted 3 screenshots" in result.output
+
+    files = list(output_dir.iterdir())
+    assert len(files) == 3
+
+
+def test_screenshots_dedupe_high_threshold(
+    cli_runner, synthetic_trace_zip_with_images, tmp_path
+):
+    output_dir = tmp_path / "screenshots_dedupe_high"
+    result = cli_runner.invoke(
+        screenshots,
+        [
+            str(synthetic_trace_zip_with_images),
+            "--output-dir",
+            str(output_dir),
+            "--dedupe-threshold",
+            "1.0",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Extracted 3 screenshots" in result.output
+
+    files = list(output_dir.iterdir())
+    assert len(files) == 3
+
+
+def test_screenshots_dedupe_with_limit(
+    cli_runner, synthetic_trace_zip_with_images, tmp_path
+):
+    output_dir = tmp_path / "screenshots_dedupe_limit"
+    result = cli_runner.invoke(
+        screenshots,
+        [
+            str(synthetic_trace_zip_with_images),
+            "--output-dir",
+            str(output_dir),
+            "--limit",
+            "1",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Extracted 1 screenshot" in result.output
+
+    files = list(output_dir.iterdir())
+    assert len(files) == 1

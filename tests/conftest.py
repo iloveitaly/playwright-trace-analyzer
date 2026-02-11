@@ -1,8 +1,10 @@
+import io
 import json
 import zipfile
 
 import pytest
 from click.testing import CliRunner
+from PIL import Image
 
 
 @pytest.fixture(scope="session")
@@ -231,3 +233,80 @@ def synthetic_trace_zip(tmp_path_factory):
 @pytest.fixture
 def cli_runner():
     return CliRunner()
+
+
+@pytest.fixture(scope="session")
+def synthetic_trace_zip_with_images(tmp_path_factory):
+    tmp_dir = tmp_path_factory.mktemp("traces_with_images")
+    trace_path = tmp_dir / "trace_images.zip"
+
+    trace_events = [
+        {
+            "type": "context-options",
+            "title": "dedup test",
+            "platform": "Linux",
+            "wallTime": 1000.0,
+            "monotonicTime": 1000.0,
+            "sdkLanguage": "python",
+            "contextOptions": {
+                "baseURL": "https://example.com",
+                "viewport": {"width": 100, "height": 100},
+            },
+            "browser": {
+                "name": "chromium",
+                "version": "130.0.0",
+                "channel": "chrome",
+            },
+            "version": "130.0.0",
+        },
+        {
+            "type": "screencast-frame",
+            "pageId": "page@1",
+            "sha1": "red1",
+            "timestamp": 2000.0,
+            "width": 100,
+            "height": 100,
+        },
+        {
+            "type": "screencast-frame",
+            "pageId": "page@1",
+            "sha1": "red2",
+            "timestamp": 2100.0,
+            "width": 100,
+            "height": 100,
+        },
+        {
+            "type": "screencast-frame",
+            "pageId": "page@1",
+            "sha1": "blue1",
+            "timestamp": 2200.0,
+            "width": 100,
+            "height": 100,
+        },
+    ]
+
+    red_img1 = Image.new("RGB", (100, 100), color=(255, 0, 0))
+    red_bytes1 = io.BytesIO()
+    red_img1.save(red_bytes1, format="JPEG", quality=95)
+    red_data1 = red_bytes1.getvalue()
+
+    red_img2 = Image.new("RGB", (100, 100), color=(255, 0, 0))
+    red_bytes2 = io.BytesIO()
+    red_img2.save(red_bytes2, format="JPEG", quality=90)
+    red_data2 = red_bytes2.getvalue()
+
+    blue_img = Image.new("RGB", (100, 100), color=(0, 0, 255))
+    blue_bytes = io.BytesIO()
+    blue_img.save(blue_bytes, format="JPEG")
+    blue_data = blue_bytes.getvalue()
+
+    with zipfile.ZipFile(trace_path, "w") as zf:
+        trace_content = "\n".join(json.dumps(event) for event in trace_events)
+        zf.writestr("trace.trace", trace_content)
+        zf.writestr("trace.network", "")
+
+        zf.writestr("resources/red1", red_data1)
+        zf.writestr("resources/red2", red_data2)
+        zf.writestr("resources/blue1", blue_data)
+
+    return trace_path

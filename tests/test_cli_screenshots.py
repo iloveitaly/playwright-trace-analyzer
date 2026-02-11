@@ -34,6 +34,27 @@ def test_screenshots_action_only(cli_runner, synthetic_trace_zip, tmp_path):
     assert len(files) == 2
 
 
+def test_screenshots_action_only_with_limit(cli_runner, synthetic_trace_zip, tmp_path):
+    output_dir = tmp_path / "screenshots_action_limit"
+    result = cli_runner.invoke(
+        screenshots,
+        [
+            str(synthetic_trace_zip),
+            "--output-dir",
+            str(output_dir),
+            "--action-only",
+            "--limit",
+            "1",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Extracted 1 screenshot" in result.output
+
+    files = list(output_dir.iterdir())
+    assert len(files) == 1
+
+
 def test_screenshots_page_filter(cli_runner, synthetic_trace_zip, tmp_path):
     output_dir = tmp_path / "screenshots_page"
     result = cli_runner.invoke(
@@ -48,11 +69,11 @@ def test_screenshots_page_filter(cli_runner, synthetic_trace_zip, tmp_path):
     assert len(files) == 2
 
 
-def test_screenshots_last_n(cli_runner, synthetic_trace_zip, tmp_path):
-    output_dir = tmp_path / "screenshots_last"
+def test_screenshots_limit(cli_runner, synthetic_trace_zip, tmp_path):
+    output_dir = tmp_path / "screenshots_limit"
     result = cli_runner.invoke(
         screenshots,
-        [str(synthetic_trace_zip), "--output-dir", str(output_dir), "--last", "1"],
+        [str(synthetic_trace_zip), "--output-dir", str(output_dir), "--limit", "1"],
     )
 
     assert result.exit_code == 0

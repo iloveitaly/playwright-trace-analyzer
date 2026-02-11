@@ -167,15 +167,15 @@ def network(
     "--action-only", is_flag=True, help="Only extract action-related screenshots"
 )
 @click.option(
-    "--last",
+    "--limit",
     "-n",
     type=int,
     default=0,
     show_default=True,
-    help="Number of screenshots to extract (0 for all)",
+    help="Maximum number of screenshots to extract (0 for all)",
 )
 def screenshots(
-    trace_file: Path, output_dir: Path, page: str | None, action_only: bool, last: int
+    trace_file: Path, output_dir: Path, page: str | None, action_only: bool, limit: int
 ):
     """Extract screenshots embedded in the trace to a directory."""
     from playwright_trace_analyzer.extractors.screenshots import (
@@ -192,8 +192,8 @@ def screenshots(
     if action_only:
         frames = filter_action_frames(frames, data.actions)
 
-    if last > 0:
-        frames = frames[-last:]
+    if limit > 0:
+        frames = frames[-limit:]
 
     output_dir.mkdir(parents=True, exist_ok=True)
 

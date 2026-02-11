@@ -12,6 +12,7 @@ from playwright_trace_analyzer.formatters import json_fmt, markdown
 @click.version_option(package_name="playwright-trace-analyzer")
 @click.pass_context
 def cli(ctx):
+    """Analyze Playwright trace files without the browser-based viewer."""
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
 
@@ -23,6 +24,7 @@ def cli(ctx):
     "-f",
     type=click.Choice(["json", "markdown"]),
     default="json",
+    show_default=True,
     help="Output format",
 )
 @click.option("--page", "-p", help="Filter by pageId")
@@ -31,9 +33,11 @@ def cli(ctx):
     "-n",
     type=int,
     default=20,
+    show_default=True,
     help="Number of actions in summary (0 for all)",
 )
 def summary(trace_file: Path, format: str, page: str | None, last: int):
+    """Get a high-level summary of the trace including metadata, errors, console warnings, failed network requests, and action timeline."""
     data = parse_trace_file(trace_file)
 
     if page:
@@ -56,11 +60,13 @@ def summary(trace_file: Path, format: str, page: str | None, last: int):
     "-f",
     type=click.Choice(["json", "markdown"]),
     default="json",
+    show_default=True,
     help="Output format",
 )
 @click.option("--page", "-p", help="Filter by pageId")
 @click.option("--errors-only", is_flag=True, help="Only show failed actions")
 def actions(trace_file: Path, format: str, page: str | None, errors_only: bool):
+    """View all actions executed during the test with timing, parameters, log messages, and error details."""
     data = parse_trace_file(trace_file)
 
     filtered_actions = data.actions
@@ -86,11 +92,13 @@ def actions(trace_file: Path, format: str, page: str | None, errors_only: bool):
     "-f",
     type=click.Choice(["json", "markdown"]),
     default="json",
+    show_default=True,
     help="Output format",
 )
 @click.option("--page", "-p", help="Filter by pageId")
 @click.option("--level", help="Filter by message type (error, warning, log, etc.)")
 def console(trace_file: Path, format: str, page: str | None, level: str | None):
+    """Extract console messages (errors, warnings, logs) with source locations."""
     data = parse_trace_file(trace_file)
 
     messages = data.console_messages
@@ -116,6 +124,7 @@ def console(trace_file: Path, format: str, page: str | None, level: str | None):
     "-f",
     type=click.Choice(["json", "markdown"]),
     default="json",
+    show_default=True,
     help="Output format",
 )
 @click.option("--failed-only", is_flag=True, help="Only show failed requests")
@@ -123,6 +132,7 @@ def console(trace_file: Path, format: str, page: str | None, level: str | None):
 def network(
     trace_file: Path, format: str, failed_only: bool, ignore_pattern: str | None
 ):
+    """Inspect network requests with status codes, timing, content types, and failure details."""
     data = parse_trace_file(trace_file)
 
     requests = data.network_requests
@@ -149,12 +159,14 @@ def network(
     "-o",
     type=click.Path(path_type=Path),
     default=Path("./trace-screenshots/"),
+    show_default=True,
     help="Output directory for screenshots",
 )
 @click.option(
     "--action-only", is_flag=True, help="Only extract action-related screenshots"
 )
 def screenshots(trace_file: Path, output_dir: Path, action_only: bool):
+    """Extract screenshots embedded in the trace to a directory."""
     data = parse_trace_file(trace_file)
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -186,9 +198,11 @@ def screenshots(trace_file: Path, output_dir: Path, action_only: bool):
     "-f",
     type=click.Choice(["json", "markdown"]),
     default="json",
+    show_default=True,
     help="Output format",
 )
 def metadata(trace_file: Path, format: str):
+    """View trace metadata including browser, platform, viewport, SDK language, and test duration."""
     data = parse_trace_file(trace_file)
 
     if format == "json":

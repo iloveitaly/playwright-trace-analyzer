@@ -11,6 +11,10 @@ up:
 test:
     uv run pytest -v
 
+# Open trace.zip with Playwright GUI viewer
+show-trace FILE="trace.zip":
+    uvx --from playwright playwright show-trace {{FILE}}
+
 # python linting checks
 [script]
 lint FILES=".":

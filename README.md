@@ -12,7 +12,13 @@ I built this because I wanted to parse Playwright traces in automated workflows 
 ## Installation
 
 ```bash
-uv add playwright-trace-analyzer
+uv add --dev playwright-trace-analyzer
+```
+
+Or, globally:
+
+```bash
+uv tool install playwright-trace-analyzer
 ```
 
 ## Usage

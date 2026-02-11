@@ -8,6 +8,13 @@ def extract_metadata(events: list[dict]) -> TraceMetadata:
     browser = context_event.get("browser", {})
     platform_data = context_event.get("platform", {})
 
+    trace_start_time = context_event.get("monotonicTime", 0.0)
+
+    if not trace_start_time:
+        trace_start_time = min(
+            (e.get("startTime", 0) for e in events if e.get("startTime")), default=0
+        )
+
     start_time = min(
         (e.get("timestamp", 0) for e in events if e.get("timestamp")), default=0
     )
@@ -45,4 +52,5 @@ def extract_metadata(events: list[dict]) -> TraceMetadata:
         base_url=options.get("baseURL"),
         viewport=viewport,
         duration_ms=duration_ms,
+        trace_start_time=trace_start_time,
     )

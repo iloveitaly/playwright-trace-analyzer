@@ -17,6 +17,7 @@ class TraceMetadata(BaseModel):
     base_url: str | None = None
     viewport: Size | None = None
     duration_ms: float
+    trace_start_time: float = 0
 
 
 class SourceLocation(BaseModel):

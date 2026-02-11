@@ -162,26 +162,52 @@ def network(
     show_default=True,
     help="Output directory for screenshots",
 )
+@click.option("--page", "-p", help="Filter by pageId")
 @click.option(
     "--action-only", is_flag=True, help="Only extract action-related screenshots"
 )
-def screenshots(trace_file: Path, output_dir: Path, action_only: bool):
+@click.option(
+    "--last",
+    "-n",
+    type=int,
+    default=0,
+    show_default=True,
+    help="Number of screenshots to extract (0 for all)",
+)
+def screenshots(
+    trace_file: Path, output_dir: Path, page: str | None, action_only: bool, last: int
+):
     """Extract screenshots embedded in the trace to a directory."""
+    from playwright_trace_analyzer.extractors.screenshots import (
+        filter_action_frames,
+        build_screenshot_filename,
+    )
+
     data = parse_trace_file(trace_file)
+    frames = data.screenshots
+
+    if page:
+        frames = [f for f in frames if f.page_id == page]
+
+    if action_only:
+        frames = filter_action_frames(frames, data.actions)
+
+    if last > 0:
+        frames = frames[-last:]
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
     with zipfile.ZipFile(trace_file) as zf:
+        resource_names = set(zf.namelist())
         screenshot_count = 0
 
-        for frame in data.screenshots:
-            if action_only:
-                continue
-
+        for frame in frames:
             resource_path = f"resources/{frame.sha1}"
 
-            if resource_path in zf.namelist():
-                output_filename = frame.sha1.replace("/", "_")
+            if resource_path in resource_names:
+                output_filename = build_screenshot_filename(
+                    frame, data.metadata.trace_start_time
+                )
                 output_path = output_dir / output_filename
 
                 with zf.open(resource_path) as src:

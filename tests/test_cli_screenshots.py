@@ -1,3 +1,5 @@
+import re
+
 from playwright_trace_analyzer.cli import screenshots
 
 
@@ -8,11 +10,14 @@ def test_screenshots_default(cli_runner, synthetic_trace_zip, tmp_path):
     )
 
     assert result.exit_code == 0
-    assert "Extracted 2 screenshots" in result.output
+    assert "Extracted 3 screenshots" in result.output
 
     assert output_dir.exists()
     files = list(output_dir.iterdir())
-    assert len(files) == 2
+    assert len(files) == 3
+
+    for file in files:
+        assert re.match(r"\d+ms\.jpeg$", file.name)
 
 
 def test_screenshots_action_only(cli_runner, synthetic_trace_zip, tmp_path):
@@ -23,7 +28,38 @@ def test_screenshots_action_only(cli_runner, synthetic_trace_zip, tmp_path):
     )
 
     assert result.exit_code == 0
-    assert "Extracted 0 screenshots" in result.output
+    assert "Extracted 2 screenshots" in result.output
+
+    files = list(output_dir.iterdir())
+    assert len(files) == 2
+
+
+def test_screenshots_page_filter(cli_runner, synthetic_trace_zip, tmp_path):
+    output_dir = tmp_path / "screenshots_page"
+    result = cli_runner.invoke(
+        screenshots,
+        [str(synthetic_trace_zip), "--output-dir", str(output_dir), "--page", "page@1"],
+    )
+
+    assert result.exit_code == 0
+    assert "Extracted 2 screenshots" in result.output
+
+    files = list(output_dir.iterdir())
+    assert len(files) == 2
+
+
+def test_screenshots_last_n(cli_runner, synthetic_trace_zip, tmp_path):
+    output_dir = tmp_path / "screenshots_last"
+    result = cli_runner.invoke(
+        screenshots,
+        [str(synthetic_trace_zip), "--output-dir", str(output_dir), "--last", "1"],
+    )
+
+    assert result.exit_code == 0
+    assert "Extracted 1 screenshot" in result.output
+
+    files = list(output_dir.iterdir())
+    assert len(files) == 1
 
 
 def test_screenshots_creates_output_dir(cli_runner, synthetic_trace_zip, tmp_path):
@@ -34,3 +70,15 @@ def test_screenshots_creates_output_dir(cli_runner, synthetic_trace_zip, tmp_pat
 
     assert result.exit_code == 0
     assert output_dir.exists()
+
+
+def test_screenshots_filenames(cli_runner, synthetic_trace_zip, tmp_path):
+    output_dir = tmp_path / "screenshots_names"
+    result = cli_runner.invoke(
+        screenshots, [str(synthetic_trace_zip), "--output-dir", str(output_dir)]
+    )
+
+    assert result.exit_code == 0
+
+    files = sorted([f.name for f in output_dir.iterdir()])
+    assert files == ["2000ms.jpeg", "4000ms.jpeg", "5000ms.jpeg"]

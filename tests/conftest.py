@@ -16,6 +16,7 @@ def synthetic_trace_zip(tmp_path_factory):
             "title": "my test title",
             "platform": "Linux",
             "wallTime": 1000.0,
+            "monotonicTime": 1000.0,
             "sdkLanguage": "python",
             "contextOptions": {
                 "baseURL": "https://example.com",
@@ -31,7 +32,7 @@ def synthetic_trace_zip(tmp_path_factory):
         {
             "type": "before",
             "callId": "call-1",
-            "startTime": 1000.0,
+            "startTime": 2500.0,
             "class": "Page",
             "method": "goto",
             "params": {"url": "https://example.com"},
@@ -41,17 +42,17 @@ def synthetic_trace_zip(tmp_path_factory):
             "type": "log",
             "callId": "call-1",
             "message": "navigating to https://example.com",
-            "time": 1001.0,
+            "time": 2700.0,
         },
         {
             "type": "after",
             "callId": "call-1",
-            "endTime": 1002.0,
+            "endTime": 3500.0,
         },
         {
             "type": "before",
             "callId": "call-2",
-            "startTime": 1003.0,
+            "startTime": 4500.0,
             "class": "Locator",
             "method": "click",
             "params": {"selector": "#missing-button"},
@@ -60,7 +61,7 @@ def synthetic_trace_zip(tmp_path_factory):
         {
             "type": "after",
             "callId": "call-2",
-            "endTime": 1004.0,
+            "endTime": 5500.0,
             "error": {
                 "message": "Element not found",
                 "stack": "Error: Element not found\n  at Page.click (foo.py:10)",
@@ -70,7 +71,7 @@ def synthetic_trace_zip(tmp_path_factory):
             "type": "console",
             "messageType": "error",
             "text": "Uncaught TypeError",
-            "time": 1001.5,
+            "time": 2800.0,
             "pageId": "page@1",
             "location": {
                 "url": "https://example.com/script.js",
@@ -82,7 +83,7 @@ def synthetic_trace_zip(tmp_path_factory):
             "type": "console",
             "messageType": "warning",
             "text": "deprecated API usage",
-            "time": 1001.7,
+            "time": 2900.0,
             "pageId": "page@1",
             "location": {
                 "url": "https://example.com/app.js",
@@ -93,7 +94,7 @@ def synthetic_trace_zip(tmp_path_factory):
             "type": "console",
             "messageType": "log",
             "text": "normal log message",
-            "time": 1003.5,
+            "time": 4800.0,
             "pageId": "page@2",
             "location": {
                 "url": "https://example.com/page2.js",
@@ -104,7 +105,7 @@ def synthetic_trace_zip(tmp_path_factory):
         {
             "type": "event",
             "method": "pageError",
-            "time": 1001.8,
+            "time": 3000.0,
             "pageId": "page@1",
             "params": {
                 "error": {
@@ -116,7 +117,7 @@ def synthetic_trace_zip(tmp_path_factory):
         {
             "type": "event",
             "method": "pageerror",
-            "time": 1003.8,
+            "time": 5000.0,
             "pageId": "page@2",
             "params": {
                 "error": {
@@ -129,7 +130,7 @@ def synthetic_trace_zip(tmp_path_factory):
             "type": "screencast-frame",
             "pageId": "page@1",
             "sha1": "abc123def456",
-            "timestamp": 1002.0,
+            "timestamp": 3000.0,
             "width": 1280,
             "height": 720,
         },
@@ -137,7 +138,15 @@ def synthetic_trace_zip(tmp_path_factory):
             "type": "screencast-frame",
             "pageId": "page@2",
             "sha1": "xyz789uvw012",
-            "timestamp": 1004.0,
+            "timestamp": 5000.0,
+            "width": 1280,
+            "height": 720,
+        },
+        {
+            "type": "screencast-frame",
+            "pageId": "page@1",
+            "sha1": "orphan123frame",
+            "timestamp": 6000.0,
             "width": 1280,
             "height": 720,
         },
@@ -156,7 +165,7 @@ def synthetic_trace_zip(tmp_path_factory):
                     "statusText": "OK",
                     "headers": [{"name": "Content-Type", "value": "application/json"}],
                 },
-                "timestamp": 1001.0,
+                "timestamp": 2600.0,
                 "sizes": {
                     "responseBody": 1024,
                 },
@@ -174,7 +183,7 @@ def synthetic_trace_zip(tmp_path_factory):
                     "statusText": "Not Found",
                     "headers": [],
                 },
-                "timestamp": 1002.0,
+                "timestamp": 3200.0,
                 "sizes": {
                     "responseBody": 128,
                 },
@@ -193,7 +202,7 @@ def synthetic_trace_zip(tmp_path_factory):
                     "headers": [],
                 },
                 "_failureText": "net::ERR_CONNECTION_REFUSED",
-                "timestamp": 1003.0,
+                "timestamp": 4700.0,
                 "sizes": {
                     "responseBody": 0,
                 },
@@ -201,7 +210,7 @@ def synthetic_trace_zip(tmp_path_factory):
         },
         {
             "type": "request-started",
-            "timestamp": 1000.5,
+            "timestamp": 2000.0,
         },
     ]
 
@@ -214,6 +223,7 @@ def synthetic_trace_zip(tmp_path_factory):
 
         zf.writestr("resources/abc123def456", b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
         zf.writestr("resources/xyz789uvw012", b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
+        zf.writestr("resources/orphan123frame", b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
 
     return trace_path
 

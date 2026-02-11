@@ -35,6 +35,10 @@ playwright-trace-analyzer network trace.zip --failed-only
 # Extract screenshots from the trace
 playwright-trace-analyzer screenshots trace.zip -o ./screenshots
 
+# Extract screenshots with deduplication control
+playwright-trace-analyzer screenshots trace.zip --dedupe-threshold 0.01  # default: drops visually identical frames
+playwright-trace-analyzer screenshots trace.zip --dedupe-threshold 0     # disable deduplication
+
 # View trace metadata
 playwright-trace-analyzer metadata trace.zip
 ```
@@ -58,7 +62,7 @@ playwright-trace-analyzer summary trace.zip --page "page@1"
 * View test actions with timing, parameters, and error details
 * Analyze console messages (errors, warnings, logs) with source locations
 * Inspect network requests including failures and status codes
-* Extract screenshots embedded in traces
+* Extract screenshots embedded in traces with automatic visual deduplication
 * Filter data by page ID, error status, or custom patterns
 * Output in JSON or markdown formats for further processing
 * No need for browser or Playwright trace viewer UI

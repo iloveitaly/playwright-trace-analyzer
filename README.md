@@ -73,6 +73,12 @@ playwright-trace-analyzer summary trace.zip --page "page@1"
 * Output in JSON or markdown formats for further processing
 * No need for browser or Playwright trace viewer UI
 
+## Related Projects
+
+* [pytest-playwright-artifacts](https://github.com/iloveitaly/pytest-playwright-artifacts): Pytest plugin that captures HTML, screenshots, and console logs on Playwright test failures
+* [pytest-playwright-visual-snapshot](https://github.com/iloveitaly/pytest-playwright-visual-snapshot): Easy pytest visual regression testing using playwright
+* [beautiful-traceback](https://github.com/iloveitaly/beautiful-traceback): Beautiful, readable Python tracebacks with colors and formatting
+
 ## [MIT License](LICENSE.md)
 
 ---
